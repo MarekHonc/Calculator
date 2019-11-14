@@ -9,6 +9,6 @@ public class Main {
         Calculator calculator = new Calculator();
         double result = calculator.Calculate(expression);
 
-        System.out.println("Vysledek je:" + result);
+        System.out.println("Vysledek je: " + result);
     }
 }
