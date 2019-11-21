@@ -8,7 +8,9 @@ import Main.Operations.Helpers.IOperation;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Calculator {
     private Map<String, IOperation> operations = new HashMap<>();
@@ -18,21 +20,45 @@ public class Calculator {
     }
 
     private void initOperations(){
-        operations.put("+", new Add());
-        operations.put("-", new Subtract());
-        operations.put("/", new Divide());
-        operations.put("*", new Multiply());
+        this.operations.put("+", new Add());
+        this.operations.put("-", new Subtract());
+        this.operations.put("/", new Divide());
+        this.operations.put("*", new Multiply());
+
+        // Srovnám pomocí priority operací
+        this.operations = this.operations.entrySet()
+                .stream()
+                .sorted((op1, op2) -> compareOperations(op1.getValue(), op2.getValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    }
+
+    private int compareOperations(IOperation op1, IOperation op2){
+        if(op1.getPriority() > op2.getPriority()){
+            return -1;
+        }
+        else if(op1.getPriority() < op2.getPriority()){
+            return 1;
+        }
+        else{
+            return 0;
+        }
     }
 
     /*
         Vrací výsledek příkladu, ve kterém nejsou žádné závorky, podle priorit operací.
      */
     public double Calculate(String expression){
+        if(expression.contains("(") || expression.contains(")")){
+            throw new java.lang.UnsupportedOperationException("This method doesnt support brackets");
+        }
+
         String result = expression.replaceAll("\\s+", "").toLowerCase();
 
         for(Map.Entry<String, IOperation> entry : this.operations.entrySet()){
             String key = entry.getKey();
             IOperation value = entry.getValue();
+
+            System.out.println(key);
 
             while(result.contains(key)){
                 // Zjistím si index operátoru.
